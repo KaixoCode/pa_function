@@ -460,10 +460,11 @@ namespace kaixo
         inline _SubFunction<sizeof...(Tys), Return, Args...> operator()(Tys&& ...tys) const
         {
             if constexpr (sizeof...(Tys) == sizeof...(Args))
+            {
                 // Optimization for direct call with all parameters
                 if (sizeof...(Args) == m_Binder->Size() && !m_Binder->Lambda())
                     return ((_FullBinder<FunType, Return(Tys...)>*)m_Binder)->m_Function(static_cast<Tys&&>(tys)...);
-            // If not all parameters, quickly apply without overhead of _ApplyBinder call and finalize.
+                // If not all parameters, quickly apply without overhead of _ApplyBinder call and finalize.
                 else
                 {
                     size_t Is = 0;
@@ -472,24 +473,24 @@ namespace kaixo
                             static_cast<Tys&&>(tys), sizeof...(Args) - Is - 1), Is++), ...);
                     return m_Binder->Finalize();
                 }
-
-            // If it has been previously called, make a copy of the binder to make the new call unique.
-            // Unless the call using this binder has been finalized
-            if (m_Binder->m_Finalized)
-                m_Called = false, m_Binder->m_Finalized = false;
-            else if (m_Called) {
-                m_Binder->m_RefCount--;
-                _Binder<Return>* _cpy = m_Binder;
-                m_Binder = m_Binder->Copy();
-                if (_cpy->m_RefCount == 0)
-                    delete _cpy; // make sure to delete when refcount reaches 0!
             }
-            _ApplyBinder<0, Tys...>(static_cast<Tys&&>(tys)..., m_IndexSeq<sizeof...(Tys)>);
-            m_Called = true;
-            if constexpr (sizeof...(Tys) == sizeof...(Args))
-                return m_Binder->Finalize();
             else
+            {
+                // If it has been previously called, make a copy of the binder to make the new call unique.
+                // Unless the call using this binder has been finalized
+                if (m_Binder->m_Finalized)
+                    m_Called = false, m_Binder->m_Finalized = false;
+                else if (m_Called) {
+                    m_Binder->m_RefCount--;
+                    _Binder<Return>* _cpy = m_Binder;
+                    m_Binder = m_Binder->Copy();
+                    if (_cpy->m_RefCount == 0)
+                        delete _cpy; // make sure to delete when refcount reaches 0!
+                }
+                _ApplyBinder<0, Tys...>(static_cast<Tys&&>(tys)..., m_IndexSeq<sizeof...(Tys)>);
+                m_Called = true;
                 return { m_Binder };
+            }
         }
 
     private:
