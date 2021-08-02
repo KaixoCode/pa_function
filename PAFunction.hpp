@@ -4,7 +4,7 @@ namespace kaixo
 {
     using dynamic = void*;
 
-    template<size_t N, typename... Ts> using NthTypeOf = typename std::tuple_element<N, std::tuple<Ts...>>::type;
+    template<size_t N, typename... Ts> using _NthTypeOf = typename std::tuple_element<N, std::tuple<Ts...>>::type;
 
     // Get the signature of a member function
     template<typename T>
@@ -92,12 +92,12 @@ namespace kaixo
     };
 
     template<typename in, typename out>
-    constexpr bool Same = std::is_same_v<_FullDecay<in>, _FullDecay<out>>;
+    constexpr bool _Same = std::is_same_v<_FullDecay<in>, _FullDecay<out>>;
 
     // Valid duo types are types that are compatible in a function call
     // 'void Function(out)', can be called like 'Function(in)';
     template<typename in, typename out>
-    constexpr bool ValidDuo = (Same<in, out> && (
+    constexpr bool _ValidDuo = (_Same<in, out> && (
         (_TC<out>::val && (_TC<in>::valr || _TC<in>::val))             // Arg           : Arg&/&& || Arg
         || (_TC<out>::nclval && (_TC<in>::nclval) && !_TC<in>::fun)    // Arg&          : const! Arg& 
         || (_TC<out>::rval && (_TC<in>::rval || _TC<in>::val))         // Arg&&         : Arg&& || Arg
@@ -122,7 +122,7 @@ namespace kaixo
         using Parent = _CompatibleTPacks<
             std::conditional_t<L1::isLast || L2::isLast, void, typename L1::Remainder>,
             std::conditional_t<L1::isLast || L2::isLast, void, typename L2::Remainder>>;
-        constexpr static bool same = (ValidDuo<L1::Type, L2::Type>
+        constexpr static bool same = (_ValidDuo<L1::Type, L2::Type>
             || std::is_same_v<L1::Type, void> || std::is_same_v<L2::Type, void>
             ) && Parent::same;
     };
@@ -181,17 +181,17 @@ namespace kaixo
         inline dynamic _ConvertToDynamic(Ty&& arg, size_t index)
         {
             // References are converted to pointers
-            if constexpr ((_TC<Arg>::valra || _TC<Arg>::vala) && Same<Ty, Arg>)
+            if constexpr ((_TC<Arg>::valra || _TC<Arg>::vala) && _Same<Ty, Arg>)
                 return reinterpret_cast<dynamic>(&arg);
             // Pointers are simply directly casted to dynamic
-            else if constexpr (_TC<Arg>::valpa && Same<Ty, Arg>)
+            else if constexpr (_TC<Arg>::valpa && _Same<Ty, Arg>)
                 return reinterpret_cast<dynamic>(arg);
             // If it's a small object and trivially copyable/constructable, memcpy to void*
             else if constexpr (sizeof(Arg) <= sizeof(dynamic) &&
                 std::is_trivially_copyable_v<Arg> && std::is_trivially_constructible_v<Arg>)
             {
                 // If it is the same and small, just copy memory.
-                if constexpr (Same<Ty, Arg>)
+                if constexpr (_Same<Ty, Arg>)
                 {
                     dynamic _ret = nullptr;
                     std::memcpy(&_ret, &arg, sizeof(Ty));
@@ -222,7 +222,7 @@ namespace kaixo
                 RealType* _ptr;
                 // If the types are not the same, we need to construct
                 // otherwise call the move constructor.
-                if constexpr (!Same<Ty, Arg>) _ptr = new RealType{ arg };
+                if constexpr (!_Same<Ty, Arg>) _ptr = new RealType{ arg };
                 else _ptr = new RealType(std::forward<Ty>(arg));
                 auto _void = reinterpret_cast<dynamic>(_ptr);
                 // Assign the destructor.
@@ -498,8 +498,8 @@ namespace kaixo
         inline void _ApplyBinder(Tys&& ... tys, std::index_sequence<Is...>&) const
         {
             ((((_CallBinder<Return, Args...>*)m_Binder)->m_Args[sizeof...(Args) - Is - 1] =
-                m_Binder->_ConvertToDynamic<NthTypeOf<Is, Tys...>, NthTypeOf<Is, Args...>>(
-                    static_cast<NthTypeOf<Is, Tys...>&&>(tys), sizeof...(Args) - Is - 1)), ...);
+                m_Binder->_ConvertToDynamic<_NthTypeOf<Is, Tys...>, _NthTypeOf<Is, Args...>>(
+                    static_cast<_NthTypeOf<Is, Tys...>&&>(tys), sizeof...(Args) - Is - 1)), ...);
         }
 
         void _Clean()
