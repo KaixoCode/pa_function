@@ -70,7 +70,7 @@ namespace kaixo {
 
         Return call(Args&&...args) const override { 
             return function(std::forward<Args>(args)...); 
-        };
+        }
     };
 
     template<class, class>
@@ -86,7 +86,7 @@ namespace kaixo {
 
         Return call(Args&&...args) const override { 
             return (obj.*function)(std::forward<Args>(args)...); 
-        };
+        }
     };
 
     template<class T>
@@ -115,7 +115,7 @@ namespace kaixo {
 
         ~function() { clean(); }
 
-        function& operator=(const function& f) {
+        auto& operator=(const function& f) {
             clean();
             storage = f.storage;
             if (storage)
@@ -123,7 +123,7 @@ namespace kaixo {
             return *this;
         }
 
-        function& operator=(function&& f) {
+        auto& operator=(function&& f) {
             clean();
             storage = f.storage;
             f.storage = nullptr;
@@ -158,12 +158,6 @@ namespace kaixo {
         template<class ...Tys> requires std::constructible_from<function<result_type(Args...)>, Tys...>
         pa_function(Tys&&...f)
             : function(std::forward<Tys>(f)...) {}
-
-        pa_function(pa_function&& f)
-            : function(std::move(f.function)) {}
-
-        pa_function(const pa_function& f)
-            : function(f.function) {}
 
         auto& operator=(pa_function&& f) {
             function = std::move(f.function);
