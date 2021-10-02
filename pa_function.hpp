@@ -147,10 +147,10 @@ namespace kaixo {
         }
     };
 
-	template<class>
+    template<class>
     class pa_function;
-	template<class Return, class...Args>
-	class pa_function<Return(Args...)> {
+    template<class Return, class...Args>
+    class pa_function<Return(Args...)> {
     public:
         using result_type = Return;
         using argument_types = std::tuple<Args...>;
@@ -187,8 +187,8 @@ namespace kaixo {
         inline operator bool() const { return function; }
 
     private:
-		function<result_type(Args...)> function;
-	};
+        function<result_type(Args...)> function;
+    };
 
     template <class Return, class ...Args>
     function(Return(Args...))->function<Return(Args...)>;
@@ -199,12 +199,12 @@ namespace kaixo {
     template <class _Fx>
     function(_Fx)->function<typename lambda_signature<_Fx>::type>;
 
-	template <class Return, class ...Args>
-	pa_function(Return(Args...))->pa_function<Return(Args...)>;
+    template <class Return, class ...Args>
+    pa_function(Return(Args...))->pa_function<Return(Args...)>;
 
-	template <class Return, class T, class ...Args>
-	pa_function(Return(T::* a)(Args...), T&)->pa_function<Return(Args...)>;
+    template <class Return, class T, class ...Args>
+    pa_function(Return(T::* a)(Args...), T&)->pa_function<Return(Args...)>;
 
-	template <class _Fx>
-	pa_function(_Fx)->pa_function<typename lambda_signature<_Fx>::type>;
+    template <class _Fx>
+    pa_function(_Fx)->pa_function<typename lambda_signature<_Fx>::type>;
 }
