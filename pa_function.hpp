@@ -54,7 +54,7 @@ namespace kaixo {
     template<class Return, class ...Args>
     class function_storage {
     public:
-        virtual Return call(Args&&...) const = 0;
+        virtual Return call(Args&&...) = 0;
         size_t ref_count = 1;
     };
 
@@ -68,7 +68,7 @@ namespace kaixo {
         typed_function_storage(Func&& f)
             : function(std::forward<Func>(f)) {}
 
-        Return call(Args&&...args) const override { 
+        Return call(Args&&...args) override { 
             return function(std::forward<Args>(args)...); 
         }
     };
@@ -84,7 +84,7 @@ namespace kaixo {
         member_function_storage(Return(Object::* function)(Args...), Object& obj)
             : function(function), obj(obj) {}
 
-        Return call(Args&&...args) const override { 
+        Return call(Args&&...args) override { 
             return (obj.*function)(std::forward<Args>(args)...); 
         }
     };
