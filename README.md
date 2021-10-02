@@ -1,5 +1,5 @@
 # pa_function
- Partial application function class in C++ with consistent typing. Works with Functors, (capturing) lambdas, function pointer, and member functions. 
+ Partial application function class in C++ with consistent typing. Works with functors, (capturing) lambdas, function pointer, and member functions. 
 ```cpp
 using namespace kaixo;
 int Add(int a, int b) { return a + b; }
