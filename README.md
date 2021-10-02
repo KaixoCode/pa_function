@@ -1,5 +1,5 @@
-# PAFunction
- Partial application function class in C++ with consistent typing. Works with (capturing) lambdas, function pointer, and member functions. Tested on a lot of cases, but if you do run into issues let me know. I am also over on discord at <code>@Kaixo#0001</code>
+# pa_function
+ Partial application function class in C++ with consistent typing. Works with Functors, (capturing) lambdas, function pointer, and member functions. 
 ```cpp
 using namespace kaixo;
 int Add(int a, int b) { return a + b; }
