@@ -28,18 +28,18 @@ namespace kaixo {
         using type = Return(Args...);
     };
 
-    template<class, size_t>
+    template<class, std::size_t>
     struct last_n_args;
-    template<class Return, class ...Args, size_t N>
+    template<class Return, class ...Args, std::size_t N>
     struct last_n_args<Return(Args...), N> {
         template<std::size_t... I>
         static inline Return(*last_n(std::index_sequence<I...>))(std::tuple_element_t<sizeof...(Args) - N + I, std::tuple<Args...>>...) {};
         using type = typename funptr_to_type<decltype(last_n(std::make_index_sequence<N>{}))>::type;
     };
 
-    template<class, size_t>
+    template<class, std::size_t>
     struct first_n_args;
-    template<class Return, typename ...Args, size_t N>
+    template<class Return, typename ...Args, std::size_t N>
     struct first_n_args<Return(Args...), N> {
         template<std::size_t... I>
         static inline Return(*first_n(std::index_sequence<I...>))(std::tuple_element_t<I, std::tuple<Args...>>...) {};
@@ -55,7 +55,7 @@ namespace kaixo {
     class function_storage {
     public:
         virtual Return call(Args&&...) = 0;
-        size_t ref_count = 1;
+        std::size_t ref_count = 1;
     };
 
     template<class, class>
